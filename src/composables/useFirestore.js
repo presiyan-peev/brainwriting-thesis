@@ -1,33 +1,48 @@
-// useFirestore.js
-
 import { ref } from "vue";
-import { db, collection } from "../../firebaseInit"; // Assuming you've set up Firebase in a file
+import {
+  db,
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  setDoc,
+} from "../../firebaseInit";
 
-export function useFirestore(collectionName) {
-  const data = ref([]);
+export function useFirestore() {
   const error = ref(null);
 
-  const collectionRef = collection(db, "sessions");
+  const addSession = async (session) => {
+    error.value = null;
 
-  async function addDocument(doc) {
     try {
-      await collectionRef.add(doc);
+      const sessionsCol = collection(db, "sessions");
+      const docRef = await addDoc(sessionsCol, session);
+      return docRef.id;
     } catch (err) {
-      error.value = err.message;
+      error.value = "Could not save the session";
+      console.error("Failed to add session: ", err);
     }
-  }
+  };
 
-  async function getDocuments() {
+  const getSession = async (id) => {
+    error.value = null;
+
     try {
-      const querySnapshot = await collectionRef.get();
-      data.value = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-    } catch (err) {
-      error.value = err.message;
-    }
-  }
+      const sessionDoc = doc(db, "sessions", id);
+      const docSnap = await getDocs(sessionDoc);
 
-  return { data, error, addDocument, getDocuments };
+      if (!docSnap.exists()) {
+        throw new Error("Session does not exist");
+      }
+
+      return docSnap.data();
+    } catch (err) {
+      error.value = "Could not fetch the session";
+      console.error("Failed to fetch session: ", err);
+    }
+  };
+
+  // ... other operations ...
+
+  return { error, addSession, getSession };
 }
