@@ -9,6 +9,11 @@ const routes = [
         path: "contact",
         component: () => import("pages/FeedbackPage.vue"),
       },
+      {
+        name: "SessionCreate",
+        path: "session-create",
+        component: () => import("pages/SessionCreate.vue"),
+      },
     ],
   },
 
