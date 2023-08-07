@@ -9,6 +9,7 @@
       rounded
       label="Start brainstorming"
       class="start-button q-mb-md"
+      @click="openCreateSessionModal"
     />
     <div>
       Brainwriting is a non-verbal brainstorming technique where participants
@@ -17,6 +18,34 @@
     </div>
   </section>
 </template>
+
+<script setup>
+import SessionCreateModal from "./SessionCreateModal.vue";
+import { useQuasar } from "quasar";
+
+const $q = useQuasar();
+
+const openCreateSessionModal = () => {
+  $q.dialog({
+    component: SessionCreateModal,
+
+    // props forwarded to your custom component
+    componentProps: {
+      text: "something",
+      // ...more..props...
+    },
+  })
+    .onOk(() => {
+      console.log("OK");
+    })
+    .onCancel(() => {
+      console.log("Cancel");
+    })
+    .onDismiss(() => {
+      console.log("Called on OK or Cancel");
+    });
+};
+</script>
 
 <style scoped>
 .start-button {
