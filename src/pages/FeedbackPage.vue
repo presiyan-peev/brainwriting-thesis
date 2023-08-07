@@ -1,11 +1,7 @@
 <template>
-  <q-page class="flex column flex-center">
-    <div>
-      <ContactForm />
-    </div>
-    <div>
-      <FAQ />
-    </div>
+  <q-page class="flex column flex-center justify-evenly">
+    <ContactForm />
+    <FAQ />
   </q-page>
 </template>
 
