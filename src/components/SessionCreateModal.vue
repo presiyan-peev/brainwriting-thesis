@@ -1,24 +1,27 @@
 <template>
   <q-dialog>
-    <PreskoForm
-      title="Presko Form"
-      :fields="sessionFields"
-      submit-component="AppSubmit"
-      @submit="alertSubmit"
-      @submit:reject="alertFormValidationFail"
-    />
+    <q-card class="q-px-lg q-py-xl">
+      <PreskoForm
+        title="Presko Form"
+        :fields="sessionFields"
+        submit-component="AppSubmit"
+        @input="handleFormInput"
+        @submit="submitSession"
+        @submit:reject="alertFormValidationFail"
+      />
+    </q-card>
   </q-dialog>
 </template>
 
 <script setup>
 import PreskoForm from "presko-form";
 
-function alertSubmit(e) {
-  alert(JSON.stringify(e));
-}
-
 function alertFormValidationFail() {
   alert("validation failed");
+}
+
+function handleFormInput(e) {
+  console.log(e);
 }
 
 const sessionFields = [
@@ -74,4 +77,8 @@ const sessionFields = [
     value: new Date(), // Default to the current date and time
   },
 ];
+
+function submitSession(e) {
+  alert(e);
+}
 </script>

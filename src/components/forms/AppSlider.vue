@@ -1,5 +1,8 @@
 <template>
-  <q-slider v-bind="$attrs" v-model="innerValue" dense class="bg-primary" />
+  <div class="flex">
+    <q-slider v-bind="$attrs" v-model="innerValue" dense />
+    <span>{{ innerValue }}</span>
+  </div>
 </template>
 
 <script setup>

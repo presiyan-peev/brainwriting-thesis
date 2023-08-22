@@ -4,10 +4,12 @@ import AppInput from "src/components/forms/AppInput.vue";
 import AppTextarea from "src/components/forms/AppTextarea.vue";
 import AppSlider from "src/components/forms/AppSlider.vue";
 import AppDateTimePicker from "src/components/forms/AppDateTimePicker.vue";
+import AppSubmit from "src/components/forms/AppSubmit.vue";
 
 export default boot(({ app }) => {
   app.component("AppInput", AppInput);
   app.component("AppTextarea", AppTextarea);
   app.component("AppSlider", AppSlider);
   app.component("AppDateTimePicker", AppDateTimePicker);
+  app.component("AppSubmit", AppSubmit);
 });
