@@ -7,6 +7,7 @@
     :dense="true"
     :clearable="true"
     :debounce="300"
+    v-bind="$attrs"
     @input="updateModelValue"
   />
 </template>
