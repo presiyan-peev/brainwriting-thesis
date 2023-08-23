@@ -15,6 +15,9 @@
 
 <script setup>
 import PreskoForm from "presko-form";
+import { useFirestore } from "src/composables/useFirestore";
+
+const { addSession } = useFirestore();
 
 function alertFormValidationFail() {
   alert("validation failed");
@@ -46,7 +49,7 @@ const sessionFields = [
   {
     propertyName: "url",
     component: "AppInput",
-    rules: ["required"],
+    rules: [],
     value: Date.now(),
     props: {
       label: "Session URL",
@@ -55,7 +58,7 @@ const sessionFields = [
   {
     propertyName: "adminUrl",
     component: "AppInput",
-    rules: ["required"],
+    rules: [],
     value: Date.now(),
     props: {
       label: "Admin URL",
@@ -64,7 +67,7 @@ const sessionFields = [
   {
     propertyName: "minutesPerRound",
     component: "AppSlider",
-    rules: ["required"],
+    rules: [],
     value: 5,
     props: {
       label: "Minutes per Round",
@@ -73,7 +76,7 @@ const sessionFields = [
   {
     propertyName: "timeBetweenRounds",
     component: "AppSlider",
-    rules: ["required"],
+    rules: [],
     value: 2,
     props: {
       label: "Time Between Rounds",
@@ -82,7 +85,7 @@ const sessionFields = [
   {
     propertyName: "startingTime",
     component: "AppDateTimePicker",
-    rules: ["required"],
+    rules: [],
     value: new Date(),
     props: {
       label: "Starting Time",
@@ -91,6 +94,7 @@ const sessionFields = [
 ];
 
 function submitSession(e) {
-  alert(e);
+  alert(JSON.stringify(e));
+  addSession(e);
 }
 </script>

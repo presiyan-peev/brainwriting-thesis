@@ -1,6 +1,6 @@
 <template>
   <q-input
-    v-model="modelValue"
+    :model-value="modelValue"
     :placeholder="placeholder"
     :type="type"
     class="app-input"
@@ -8,7 +8,7 @@
     :clearable="true"
     :debounce="300"
     v-bind="$attrs"
-    @input="updateModelValue"
+    @update:model-value="updateModelValue"
   />
 </template>
 
@@ -21,11 +21,12 @@ const {
   type,
 } = defineProps(["modelValue", "placeholder", "type"]);
 const modelValue = ref(propValue);
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:model-value"]);
 
 const updateModelValue = (value) => {
   modelValue.value = value;
-  emit("update:modelValue", value);
+  emit("update:model-value", value);
+  emit("input", value);
 };
 </script>
 

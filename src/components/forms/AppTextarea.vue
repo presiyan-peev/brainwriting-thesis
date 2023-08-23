@@ -1,21 +1,29 @@
 <template>
-  <q-input filled v-bind="$attrs" v-model="innerValue" type="textarea" />
+  <q-input
+    :model-value="modelValue"
+    filled
+    v-bind="$attrs"
+    @update:model-value="updateModelValue"
+    type="textarea"
+  />
 </template>
 
 <script setup>
-import { ref, toRefs, watch } from "vue";
+import { ref, defineProps, defineEmits } from "vue";
 
-const props = defineProps({
-  modelValue: String,
-});
+const {
+  modelValue: propValue,
+  placeholder,
+  type,
+} = defineProps(["modelValue", "placeholder", "type"]);
+const modelValue = ref(propValue);
+const emit = defineEmits(["update:model-value"]);
 
-const emit = defineEmits(["update:modelValue"]);
-const { modelValue } = toRefs(props);
-const innerValue = ref(modelValue.value);
-
-watch(innerValue, (newVal) => {
-  emit("update:modelValue", newVal);
-});
+const updateModelValue = (value) => {
+  modelValue.value = value;
+  emit("update:model-value", value);
+  emit("input", value);
+};
 </script>
 
 <style scoped>
