@@ -94,7 +94,7 @@ const sessionFields = [
 ];
 
 function submitSession(e) {
-  alert(JSON.stringify(e));
-  addSession(e);
+  alert(JSON.stringify({ session: e, id: e.url }));
+  addSession({ session: e, id: e.url });
 }
 </script>

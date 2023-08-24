@@ -11,13 +11,14 @@ import {
 export function useFirestore() {
   const error = ref(null);
 
-  const addSession = async (session) => {
+  const addSession = async ({ id, session }) => {
     error.value = null;
 
     try {
-      const sessionsCol = collection(db, "sessions");
-      const docRef = await addDoc(sessionsCol, session);
-      return docRef.id;
+      console.log({ session, id });
+      const docRef = await setDoc(doc(db, "sessions", id.toString()), session);
+      console.log({ docRef });
+      return id;
     } catch (err) {
       error.value = "Could not save the session";
       console.error("Failed to add session: ", err);
