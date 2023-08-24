@@ -3,6 +3,7 @@ import {
   db,
   collection,
   addDoc,
+  getDoc,
   getDocs,
   doc,
   setDoc,
@@ -27,10 +28,10 @@ export function useFirestore() {
 
   const getSession = async (id) => {
     error.value = null;
-
+    console.log({ id });
     try {
       const sessionDoc = doc(db, "sessions", id);
-      const docSnap = await getDocs(sessionDoc);
+      const docSnap = await getDoc(sessionDoc);
 
       if (!docSnap.exists()) {
         throw new Error("Session does not exist");
