@@ -17,7 +17,7 @@
             v-for="session in sessions"
             :key="session.id"
             clickable
-            @click="goToSession(session.id)"
+            @click="goToSession(session.url)"
           >
             <q-item-section>
               <q-item-label>{{ session.topic }}</q-item-label>
@@ -51,7 +51,10 @@ function createSession() {
   this.$router.push({ name: "SessionCreate" });
 }
 
-function goToSession(id) {
-  router.push({ name: "SessionDetails", params: { id: id } });
+function goToSession(sessionUrl) {
+  router.push({
+    name: "SessionActionPage",
+    params: { sessionUrl: sessionUrl },
+  });
 }
 </script>

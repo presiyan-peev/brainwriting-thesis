@@ -30,14 +30,17 @@ export function useFirestore() {
     error.value = null;
     console.log({ id });
     try {
-      const sessionDoc = doc(db, "sessions", id);
-      const docSnap = await getDoc(sessionDoc);
+      const docRef = doc(db, "sessions", id);
+      const docSnap = await getDoc(docRef);
 
-      if (!docSnap) {
-        throw new Error("Session does not exist");
+      if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data());
+      } else {
+        // docSnap.data() will be undefined in this case
+        console.log("No such document!");
       }
 
-      return docSnap;
+      return docSnap.data();
     } catch (err) {
       error.value = "Could not fetch the session";
       console.error("Failed to fetch session: ", err);
