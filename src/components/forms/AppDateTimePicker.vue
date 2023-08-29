@@ -17,7 +17,11 @@
 <script setup>
 import { ref, watch } from "vue";
 
-const props = defineProps({
+const {
+  modelValue: propValue,
+  datePlaceholder,
+  timePlaceholder,
+} = defineProps({
   modelValue: {
     type: String,
     default: "",
@@ -32,23 +36,55 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:model-value", "input"]);
 
 const internalDate = ref("");
 const internalTime = ref("");
 
 watch(
-  () => props.modelValue,
+  () => propValue,
   (newValue) => {
-    const [date, time] = newValue.split(" ");
-    internalDate.value = date;
-    internalTime.value = time;
+    timestampToQDate(newValue);
   }
 );
 
 watch([internalDate, internalTime], () => {
-  emit("update:modelValue", `${internalDate.value} ${internalTime.value}`);
+  console.log("date or time changed");
+  console.log(internalDate.value);
+  console.log(internalTime.value);
+  const input = qDateToTimestamp(internalDate.value, internalTime.value);
+  if (isNaN(input)) {
+    return;
+  }
+  emit("update:model-value", input);
+  emit("input", input);
 });
+
+/**
+ * Converts a date and time string to a timestamp
+ * @param {string} date
+ * @param {string} time
+ * @returns {string}
+ */
+function qDateToTimestamp(date, time) {
+  return Date.parse(`${date} ${time}`);
+}
+
+/**
+ * Converts a timestamp to a date and time string
+ * @param {string} propValue
+ */
+function timestampToQDate(propValue) {
+  const date = new Date(propValue);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  internalDate.value = `${year}-${month}-${day}`;
+  internalTime.value = `${hours}:${minutes}`;
+}
 </script>
 
 <style scoped>

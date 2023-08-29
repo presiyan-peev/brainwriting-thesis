@@ -3,8 +3,9 @@
   <div v-else class="content">
     <div class="session">
       <h2>{{ session.topic }}</h2>
-      <p>{{ session.startingTime }}</p>
       <h6>Time until session starts: {{ remainingTime }}</h6>
+      <p>Starting time: {{ userFriendlyStartingTime }}</p>
+      <p>You can still ontribute to the idea</p>
       <div class="actions">
         <q-input v-model="ideaContribution" outlined type="textarea" />
         <button @click="submitContribution">Submit</button>
@@ -51,9 +52,31 @@ const remainingTime = computed(() => {
   const sessionStart = new Date(session.value.startingTime);
   const diff = sessionStart.getTime() - now.getTime();
   const days = Math.floor(diff / 1000 / 60 / 60 / 24);
-  const minutes = Math.floor(diff / 1000 / 60);
-  const seconds = Math.floor((diff / 1000) % 60);
-  return `${days} days, ${minutes} minutes, ${seconds} seconds`;
+  const hours = Math.floor(diff / 1000 / 60 / 60 - days * 24);
+  const minutes = Math.floor(diff / 1000 / 60 - days * 24 * 60 - hours * 60);
+  const seconds = Math.floor(
+    diff / 1000 - days * 24 * 60 * 60 - hours * 60 * 60 - minutes * 60
+  );
+
+  let remainingTime = "";
+  if (days > 0) {
+    remainingTime += `${days} days, `;
+  }
+  if (hours > 0) {
+    remainingTime += `${hours} hours, `;
+  }
+  if (minutes > 0) {
+    remainingTime += `${minutes} minutes, `;
+  }
+  if (seconds > 0) {
+    remainingTime += `${seconds} seconds`;
+  }
+  return remainingTime;
+});
+
+const userFriendlyStartingTime = computed(() => {
+  const date = new Date(session.value.startingTime);
+  return date.toLocaleString();
 });
 
 onMounted(() => {
