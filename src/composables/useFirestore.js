@@ -33,11 +33,23 @@ export function useFirestore() {
       const sessionDoc = doc(db, "sessions", id);
       const docSnap = await getDoc(sessionDoc);
 
-      if (!docSnap.exists()) {
+      if (!docSnap) {
         throw new Error("Session does not exist");
       }
 
-      return docSnap.data();
+      return docSnap;
+    } catch (err) {
+      error.value = "Could not fetch the session";
+      console.error("Failed to fetch session: ", err);
+    }
+  };
+
+  const fetchListOfSessions = async (id) => {
+    error.value = null;
+    try {
+      const docSnap = await getDocs(collection(db, "sessions"));
+
+      return docSnap.docs.map((doc) => doc.data());
     } catch (err) {
       error.value = "Could not fetch the session";
       console.error("Failed to fetch session: ", err);
@@ -46,5 +58,5 @@ export function useFirestore() {
 
   // ... other operations ...
 
-  return { error, addSession, getSession };
+  return { error, addSession, fetchListOfSessions, getSession };
 }

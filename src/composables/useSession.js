@@ -6,6 +6,7 @@ import { useFirestore } from "./useFirestore";
 export function useSession() {
   const { data, error, addDocument, getDocuments } = useFirestore("sessions");
   const session = ref({});
+  const sessions = ref([]);
 
   async function createSession(sessionData) {
     try {
@@ -17,7 +18,7 @@ export function useSession() {
 
   async function fetchSessions() {
     try {
-      await getDocuments();
+      sessions.value = await getDocuments();
     } catch (err) {
       console.error("Failed to fetch sessions:", err);
     }
@@ -25,6 +26,7 @@ export function useSession() {
 
   return {
     session: data,
+    sessions,
     sessionError: error,
     createSession,
     fetchSessions,

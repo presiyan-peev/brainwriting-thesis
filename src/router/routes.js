@@ -10,6 +10,11 @@ const routes = [
         component: () => import("pages/FeedbackPage.vue"),
       },
       {
+        name: "SessionsList",
+        path: "sessions-list",
+        component: () => import("pages/SessionsList.vue"),
+      },
+      {
         name: "SessionCreate",
         path: "session-create",
         component: () => import("pages/SessionCreate.vue"),
