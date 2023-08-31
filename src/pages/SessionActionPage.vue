@@ -3,9 +3,9 @@
   <div v-else class="content">
     <div class="session">
       <h2>{{ session.topic }}</h2>
-      <h6>Time until session starts: {{ remainingTime }}</h6>
+      <AnimatedCountdown :timestamp="session.startingTime" />
       <p>Starting time: {{ userFriendlyStartingTime }}</p>
-      <p>You can still ontribute to the idea</p>
+      <p>You can still contribute to the idea</p>
       <div class="actions">
         <q-input v-model="ideaContribution" outlined type="textarea" />
         <button @click="submitContribution">Submit</button>
@@ -19,6 +19,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useFirestore } from "src/composables/useFirestore";
 import { useQuasar } from "quasar";
+import AnimatedCountdown from "src/components/AnimatedCountdown.vue";
 
 const $q = useQuasar();
 const route = useRoute();
