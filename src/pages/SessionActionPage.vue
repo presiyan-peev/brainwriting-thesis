@@ -1,7 +1,18 @@
 <template>
   <div v-if="loading" class="loading">Loading...</div>
+  <div v-else-if="!isAuthenticated">
+    <div class="content q-mx-xl">
+      <div class="session">
+        <h2>{{ session.topic }}</h2>
+        <p>Please type in your access code to participate in this session.</p>
+        <AppInput v-model="accessCode" label="Access Code" type="text" />
+        <q-btn label="Submit" color="primary" @click="checkAccessCode" />
+      </div>
+    </div>
+  </div>
   <div v-else class="content q-mx-xl">
     <div class="session">
+      <h4>Hello, {{ userFullName }}</h4>
       <h2>{{ session.topic }}</h2>
       <template v-if="sessionStage === 'not-started'">
         <SessionActionBefore :session="session" />
@@ -25,6 +36,7 @@ import { useQuasar } from "quasar";
 import SessionActionBefore from "src/pages/partials/SessionActionBefore.vue";
 import SessionActionIdeaGeneration from "src/pages/partials/SessionActionIdeaGeneration.vue";
 import SessionActionClosed from "src/pages/partials/SessionActionClosed.vue";
+import AppInput from "src/components/forms/AppInput.vue";
 
 const $q = useQuasar();
 const route = useRoute();
@@ -34,10 +46,34 @@ const sessionUrl = route.params.sessionUrl;
 
 const session = ref(null);
 const loading = ref(true);
+const isAuthenticated = ref(false);
+const accessCode = ref("");
+const userFullName = ref("");
 
 async function fetchSessionData() {
   session.value = await getSession(sessionUrl);
   loading.value = false;
+}
+
+function checkAccessCode() {
+  const contributor = session.value.contributors.find(
+    (x) => x.password === accessCode.value
+  );
+  if (contributor) {
+    isAuthenticated.value = true;
+    userFullName.value = contributor.name;
+    $q.notify({
+      message: "You are now authenticated",
+      color: "info",
+      icon: "check",
+    });
+  } else {
+    $q.notify({
+      message: "The access code is incorrect",
+      color: "negative",
+      icon: "close",
+    });
+  }
 }
 
 /**
