@@ -5,7 +5,6 @@
     :type="type"
     class="app-input"
     :dense="true"
-    :clearable="true"
     :debounce="300"
     v-bind="$attrs"
     @update:model-value="updateModelValue"

@@ -1,6 +1,6 @@
 <template>
   <q-dialog>
-    <q-card class="q-px-lg q-py-xl">
+    <q-card class="q-px-lg q-py-xl" style="max-width: 80vw; width: 655px">
       <PreskoForm
         title="Presko Form"
         :fields="sessionFields"
@@ -65,30 +65,21 @@ const sessionFields = [
     },
   },
   {
-    propertyName: "minutesPerRound",
-    component: "AppSlider",
-    rules: [],
-    value: 5,
-    props: {
-      label: "Minutes per Round",
-    },
-  },
-  {
-    propertyName: "timeBetweenRounds",
-    component: "AppSlider",
-    rules: [],
-    value: 2,
-    props: {
-      label: "Time Between Rounds",
-    },
-  },
-  {
     propertyName: "startingTime",
     component: "AppDateTimePicker",
     rules: [],
     value: new Date(),
     props: {
       label: "Starting Time",
+    },
+  },
+  {
+    propertyName: "contributors",
+    component: "NamePasswordArrayInput",
+    rules: [],
+    value: [],
+    props: {
+      length: 6,
     },
   },
 ];

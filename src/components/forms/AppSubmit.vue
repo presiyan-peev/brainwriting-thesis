@@ -1,1 +1,1 @@
-<template><button type="submit">submit</button></template>
+<template><q-btn type="submit" color="primary">submit</q-btn></template>
