@@ -20,7 +20,7 @@
       <template v-else-if="sessionStage === 'started'">
         <SessionActionIdeaGeneration
           :idea-card="session.ideaCards ? session.ideaCards[0] : mockIdeaCard"
-          :active-round="1"
+          :active-round="activeRound"
           @finished="submitInput"
         />
       </template>
@@ -53,6 +53,7 @@ const loading = ref(true);
 const isAuthenticated = ref(false);
 const accessCode = ref("");
 const userFullName = ref("");
+const activeRound = ref(1);
 const userIndex = ref(-1);
 const nextIdeaFormIndex = ref(-1);
 
@@ -86,7 +87,11 @@ function checkAccessCode() {
 /**
  * Calls a Snackbar to show a message that the contribution was submitted
  */
-const submitInput = () => {
+const submitInput = (e) => {
+  const newSession = JSON.parse(JSON.stringify(session.value));
+  newSession.ideaCards = e;
+  activeRound.value++;
+
   $q.notify({
     message: "Your contribution was submitted",
     color: "info",
