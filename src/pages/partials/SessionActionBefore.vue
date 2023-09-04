@@ -1,5 +1,8 @@
 <template>
-  <AnimatedCountdown :timestamp="session.startingTime" />
+  <AnimatedCountdown
+    label="Time until we start"
+    :timestamp="session.startingTime"
+  />
   <p>Starting time: {{ userFriendlyStartingTime }}</p>
   <h6>Please, be on time!</h6>
 </template>

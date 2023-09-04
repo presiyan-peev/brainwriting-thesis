@@ -1,20 +1,29 @@
 <template>
   <div class="actions">
-    <IdeaForm v-if="round" :round="round" @input="submitInput" />
+    <AnimatedCountdown :timestamp="fiveMinutesFromNow" />
+    <IdeaForm
+      v-if="ideaCard"
+      :idea-card="ideaCard"
+      :active-round="activeRound"
+      @input="submitInput"
+    />
   </div>
 </template>
 
 <script setup>
+import { computed } from "vue";
 import IdeaForm from "src/components/IdeaForm.vue";
+import AnimatedCountdown from "src/components/AnimatedCountdown.vue";
 
 const props = defineProps({
-  session: {
+  ideaCard: {
     type: Object,
-    required: true,
   },
-  round: {
+  activeRound: {
     type: Number,
-    required: true,
   },
 });
+
+const now = new Date();
+const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60000 + 1000);
 </script>

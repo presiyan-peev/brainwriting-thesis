@@ -1,5 +1,5 @@
 <template>
-  <h6>Time until we start: {{ timeLeft }}</h6>
+  <h6>{{ label }}: {{ timeLeft }}</h6>
 </template>
 
 <script>
@@ -8,6 +8,10 @@ export default {
     timestamp: {
       type: Number,
       required: true,
+    },
+    label: {
+      type: String,
+      default: "Time remaining",
     },
   },
   data() {

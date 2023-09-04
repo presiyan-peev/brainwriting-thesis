@@ -12,22 +12,15 @@
       </thead>
       <!-- Body Rows -->
       <tbody>
-        <tr v-for="i in 6" :key="i">
-          <td>{{ i }}</td>
-          <td v-for="j in 3" :key="j">
+        <tr v-for="(round, index) in ideaCard.rounds" :key="index">
+          <td>{{ index + 1 }}</td>
+          <td v-for="(idea, ideaIndex) in round.ideas" :key="ideaIndex">
             <q-input
-              v-if="!round || round === i"
-              v-model="texts[i][j]"
-              type="textarea"
-              rows="2"
-              :disabled="round && round !== i"
-            >
-              <template v-if="round === i" #loading>
-                <q-inner-loading>
-                  <q-spinner />
-                </q-inner-loading>
-              </template>
-            </q-input>
+              :disabled="activeRound !== index + 1"
+              :value="idea.content"
+              @input="updateIdea(index, ideaIndex, $event)"
+              label="Idea"
+            />
           </td>
         </tr>
       </tbody>
@@ -37,40 +30,36 @@
 
 <script>
 export default {
-  name: "IdeaForm",
   props: {
-    round: {
-      type: [Number, undefined],
-      validator(value) {
-        return !value || (value >= 1 && value <= 6);
-      },
+    ideaCard: {
+      type: Object,
+      required: true,
+    },
+    activeRound: {
+      type: Number,
+      default: 1,
+    },
+  },
+  methods: {
+    updateIdea(roundIndex, ideaIndex, newValue) {
+      // Assume we have deep cloned ideaCard to localIdeaCard
+      this.localIdeaCard.rounds[roundIndex].ideas[ideaIndex].content = newValue;
+      // Emit updated data to parent
+      this.$emit("update:ideaCard", this.localIdeaCard);
     },
   },
   data() {
     return {
-      texts: Array(7)
-        .fill()
-        .map(() => Array(7).fill("")),
+      localIdeaCard: JSON.parse(JSON.stringify(this.ideaCard)), // Deep clone
     };
+  },
+  watch: {
+    ideaCard: {
+      handler(newVal) {
+        this.localIdeaCard = JSON.parse(JSON.stringify(newVal));
+      },
+      deep: true,
+    },
   },
 };
 </script>
-
-<style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-td,
-th {
-  border: 1px solid black;
-  padding: 10px;
-  text-align: center;
-}
-
-q-input {
-  height: auto; /* adjust as needed */
-  overflow: hidden;
-}
-</style>

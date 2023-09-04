@@ -18,7 +18,11 @@
         <SessionActionBefore :session="session" />
       </template>
       <template v-else-if="sessionStage === 'started'">
-        <SessionActionIdeaGeneration :session="session" />
+        <SessionActionIdeaGeneration
+          :idea-card="session.ideaCards ? session.ideaCards[0] : mockIdeaCard"
+          :active-round="1"
+          @finished="submitInput"
+        />
       </template>
       <template v-else-if="sessionStage === 'ended'">
         <SessionActionClosed :session="session" />
@@ -49,6 +53,8 @@ const loading = ref(true);
 const isAuthenticated = ref(false);
 const accessCode = ref("");
 const userFullName = ref("");
+const userIndex = ref(-1);
+const nextIdeaFormIndex = ref(-1);
 
 async function fetchSessionData() {
   session.value = await getSession(sessionUrl);
@@ -56,12 +62,13 @@ async function fetchSessionData() {
 }
 
 function checkAccessCode() {
-  const contributor = session.value.contributors.find(
+  userIndex.value = session.value.contributors.findIndex(
     (x) => x.password === accessCode.value
   );
-  if (contributor) {
+  if (userIndex.value > -1) {
     isAuthenticated.value = true;
-    userFullName.value = contributor.name;
+    userFullName.value = session.value.contributors[userIndex.value].name;
+    nextIdeaFormIndex.value = userFullName.value;
     $q.notify({
       message: "You are now authenticated",
       color: "info",
@@ -90,6 +97,7 @@ const submitInput = () => {
 const round = computed(() => {});
 
 const sessionStage = computed(() => {
+  return "started";
   const now = Date.now();
   if (now < session.value.startingTime) {
     return "not-started";
@@ -103,4 +111,24 @@ const sessionStage = computed(() => {
 onMounted(() => {
   fetchSessionData();
 });
+
+const mockIdeaCard = {
+  id: "mock",
+  rounds: [
+    {
+      contributor: "John Doe",
+      ideas: [
+        {
+          content: "Idea 1",
+        },
+        {
+          content: "Idea 2",
+        },
+        {
+          content: "Idea 3",
+        },
+      ],
+    },
+  ],
+};
 </script>
