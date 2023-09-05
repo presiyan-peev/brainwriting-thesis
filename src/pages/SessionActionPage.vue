@@ -148,6 +148,19 @@ onMounted(() => {
   fetchSessionData();
 });
 
+const emptyRow = {
+  ideas: [
+    {
+      content: "",
+    },
+    {
+      content: "",
+    },
+    {
+      content: "",
+    },
+  ],
+};
 const mockIdeaCard = {
   id: "mock",
   rounds: [
@@ -165,6 +178,11 @@ const mockIdeaCard = {
         },
       ],
     },
+    { ...emptyRow },
+    { ...emptyRow },
+    { ...emptyRow },
+    { ...emptyRow },
+    { ...emptyRow },
   ],
 };
 </script>
