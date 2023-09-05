@@ -2,7 +2,7 @@ import { ref } from "vue";
 import {
   db,
   collection,
-  addDoc,
+  updateDoc,
   getDoc,
   getDocs,
   doc,
@@ -59,7 +59,32 @@ export function useFirestore() {
     }
   };
 
+  // const setIdeacard = async (id, ideacard) => {
+  //   error.value = null;
+  //   try {
+
+  //   }
+  // }
+
+  const updateSessionIdeaCard = async (id, ideaCardId, ideaCard) => {
+    // Create an initial document to update.
+    const sessionToUpdate = doc(db, "sessions", id.toString());
+
+    // To update age and favorite color:
+    await updateDoc(sessionToUpdate, {
+      ideaCards: {
+        [ideaCardId]: ideaCard,
+      },
+    });
+  };
+
   // ... other operations ...
 
-  return { error, addSession, fetchListOfSessions, getSession };
+  return {
+    error,
+    addSession,
+    fetchListOfSessions,
+    getSession,
+    updateSessionIdeaCard,
+  };
 }

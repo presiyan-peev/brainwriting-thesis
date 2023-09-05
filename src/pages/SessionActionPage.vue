@@ -44,7 +44,7 @@ import AppInput from "src/components/forms/AppInput.vue";
 
 const $q = useQuasar();
 const route = useRoute();
-const { getSession } = useFirestore();
+const { getSession, updateSessionIdeaCard } = useFirestore();
 
 const sessionUrl = route.params.sessionUrl;
 
@@ -91,12 +91,22 @@ const submitInput = (e) => {
   const newSession = JSON.parse(JSON.stringify(session.value));
   newSession.ideaCards = e;
   activeRound.value++;
-
-  $q.notify({
-    message: "Your contribution was submitted",
-    color: "info",
-    icon: "check",
-  });
+  console.log(e);
+  try {
+    updateSessionIdeaCard(sessionUrl, userIndex.value, e);
+    $q.notify({
+      message: "Your contribution was submitted",
+      color: "info",
+      icon: "check",
+    });
+  } catch (error) {
+    console.log(error);
+    $q.notify({
+      message: "There was an error submitting your contribution",
+      color: "negative",
+      icon: "close",
+    });
+  }
 };
 
 const round = computed(() => {});

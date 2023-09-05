@@ -4,6 +4,7 @@
       :timestamp="fiveMinutesFromNow"
       @finished="submitInput"
     />
+    <q-btn @click="submitInput">Submit</q-btn>
     <IdeaForm
       v-if="ideaCard"
       :idea-card="ideaCard"
