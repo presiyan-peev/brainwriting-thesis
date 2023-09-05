@@ -15,7 +15,6 @@
         <tr v-for="(round, index) in localIdeaCard.rounds" :key="index">
           <td>{{ index + 1 }}</td>
           <td v-for="(idea, ideaIndex) in round.ideas" :key="ideaIndex">
-            {{ idea.content }}
             <q-input
               label="Idea"
               :disabled="activeRound !== index + 1"

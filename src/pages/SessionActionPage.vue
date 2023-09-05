@@ -19,8 +19,13 @@
       </template>
       <template v-else-if="sessionStage === 'started'">
         <SessionActionIdeaGeneration
-          :idea-card="session.ideaCards ? session.ideaCards[0] : mockIdeaCard"
+          :idea-card="
+            session.ideaCards
+              ? session.ideaCards[nextIdeaFormIndex]
+              : mockIdeaCard
+          "
           :active-round="activeRound"
+          :loading="waitingForNextRound"
           @finished="submitInput"
         />
       </template>
@@ -56,6 +61,7 @@ const userFullName = ref("");
 const activeRound = ref(1);
 const userIndex = ref(-1);
 const nextIdeaFormIndex = ref(-1);
+const waitingForNextRound = ref(false);
 
 async function fetchSessionData() {
   session.value = await getSession(sessionUrl);
@@ -69,7 +75,7 @@ function checkAccessCode() {
   if (userIndex.value > -1) {
     isAuthenticated.value = true;
     userFullName.value = session.value.contributors[userIndex.value].name;
-    nextIdeaFormIndex.value = userFullName.value;
+    nextIdeaFormIndex.value = userIndex.value;
     $q.notify({
       message: "You are now authenticated",
       color: "info",
@@ -84,14 +90,27 @@ function checkAccessCode() {
   }
 }
 
+function fetchNextIdeaCard() {
+  incrementIdeaFormIndex();
+  setTimeout(() => {
+    fetchSessionData();
+    activeRound.value++;
+    waitingForNextRound.value = false;
+  }, 2000);
+}
+
+function incrementIdeaFormIndex() {
+  if (nextIdeaFormIndex.value === session.value.contributors.length - 1) {
+    nextIdeaFormIndex.value = 0;
+  } else {
+    nextIdeaFormIndex.value++;
+  }
+}
+
 /**
  * Calls a Snackbar to show a message that the contribution was submitted
  */
 const submitInput = (e) => {
-  const newSession = JSON.parse(JSON.stringify(session.value));
-  newSession.ideaCards = e;
-  activeRound.value++;
-  console.log(e);
   try {
     updateSessionIdeaCard(sessionUrl, userIndex.value, e);
     $q.notify({
@@ -99,6 +118,8 @@ const submitInput = (e) => {
       color: "info",
       icon: "check",
     });
+    waitingForNextRound.value = true;
+    fetchNextIdeaCard();
   } catch (error) {
     console.log(error);
     $q.notify({

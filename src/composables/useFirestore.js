@@ -72,9 +72,7 @@ export function useFirestore() {
 
     // To update age and favorite color:
     await updateDoc(sessionToUpdate, {
-      ideaCards: {
-        [ideaCardId]: ideaCard,
-      },
+      [`ideaCards.${ideaCardId}`]: ideaCard,
     });
   };
 

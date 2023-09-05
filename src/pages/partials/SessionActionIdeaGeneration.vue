@@ -1,5 +1,9 @@
 <template>
-  <div class="actions">
+  <div v-if="loading">
+    <q-spinner-gears />
+    <span> Waiting for next idea card to be revealed... </span>
+  </div>
+  <div v-else class="actions">
     <AnimatedCountdown
       :timestamp="fiveMinutesFromNow"
       @finished="submitInput"
@@ -9,6 +13,7 @@
       v-if="ideaCard"
       :idea-card="ideaCard"
       :active-round="activeRound"
+      :key="activeRound"
       @update:ideaCard="storeInput"
     />
   </div>
@@ -25,6 +30,7 @@ const props = defineProps({
   activeRound: {
     type: Number,
   },
+  loading: Boolean,
 });
 
 const emit = defineEmits(["finished"]);
