@@ -64,6 +64,7 @@ const nextIdeaFormIndex = ref(-1);
 const waitingForNextRound = ref(false);
 
 async function fetchSessionData() {
+  session.value = null;
   session.value = await getSession(sessionUrl);
   loading.value = false;
 }
