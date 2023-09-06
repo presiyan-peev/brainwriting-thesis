@@ -24,6 +24,11 @@ const routes = [
         path: "session-action/:sessionUrl",
         component: () => import("pages/SessionActionPage.vue"),
       },
+      {
+        name: "SessionAdmin",
+        path: "session-admin/:sessionUrl",
+        component: () => import("pages/SessionAdmin.vue"),
+      },
     ],
   },
 

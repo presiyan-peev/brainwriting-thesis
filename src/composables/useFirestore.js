@@ -84,5 +84,6 @@ export function useFirestore() {
     fetchListOfSessions,
     getSession,
     updateSessionIdeaCard,
+    updateDoc,
   };
 }

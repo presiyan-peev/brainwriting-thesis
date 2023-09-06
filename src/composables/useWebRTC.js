@@ -1,15 +1,30 @@
 import { ref } from "vue";
 import {
-  getDocument,
-  updateDocument,
-  listenToDocument,
-  listenToCollection,
-} from "./useFirestore";
+  db,
+  collection,
+  updateDoc,
+  getDoc,
+  getDocs,
+  doc,
+  setDoc,
+  onSnapshot,
+  query,
+} from "../../firebaseInit";
 
 export default function useWebRTC() {
+  const configuration = {
+    iceServers: [
+      {
+        urls: [
+          "stun:stun1.l.google.com:19302",
+          "stun:stun2.l.google.com:19302",
+        ],
+      },
+    ],
+    iceCandidatePoolSize: 10,
+  };
   const localStream = ref(null);
-  const peerConnection = new RTCPeerConnection();
-  let sessionId = null;
+  const peerConnection = new RTCPeerConnection(configuration);
   let roomRef = null;
 
   // Initialize the local stream
@@ -24,24 +39,42 @@ export default function useWebRTC() {
   }
 
   // Create a new room within an existing session
-  async function createRoom(existingSessionId) {
-    sessionId = existingSessionId;
+  async function createRoom(id) {
+    // Create an initial document to update.
+    roomRef = doc(db, "sessions", id.toString());
+
+    collectIceCandidates(id);
+
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
-    roomRef = await getDocument(`sessions/${sessionId}`);
-    await updateDocument(`sessions/${sessionId}`, {
+
+    // To update age and favorite color:
+    await updateDoc(roomRef, {
       offer: {
         type: offer.type,
         sdp: offer.sdp,
       },
     });
+
+    const unsubscribe = onSnapshot(roomRef, async (snapshot) => {
+      console.log("Got updated room:", snapshot.data());
+      const data = snapshot.data();
+      if (!peerConnection.currentRemoteDescription && data && data.answer) {
+        console.log("Set remote description: ", data.answer);
+        const answer = new RTCSessionDescription(data.answer);
+        await peerConnection.setRemoteDescription(answer);
+      }
+    });
+
+    return unsubscribe;
   }
 
-  async function joinRoom(roomID) {
-    roomRef = await listenToDocument(`sessions/${roomID}`);
+  async function joinRoom(id) {
+    roomRef = doc(db, "sessions", id.toString());
+    collectIceCandidates(id);
 
     // Listen to changes in the document
-    roomRef.onSnapshot(async (snapshot) => {
+    const unsubscribe = onSnapshot(roomRef, async (snapshot) => {
       const data = snapshot.data();
       if (data && data.offer && !peerConnection.currentRemoteDescription) {
         const offer = data.offer;
@@ -54,7 +87,7 @@ export default function useWebRTC() {
         await peerConnection.setLocalDescription(answer);
 
         // Update Firestore with your answer
-        await updateDocument(`sessions/${roomID}`, {
+        await updateDoc(`sessions/${id}`, {
           answer: {
             type: answer.type,
             sdp: answer.sdp,
@@ -62,18 +95,29 @@ export default function useWebRTC() {
         });
       }
     });
+
+    return unsubscribe;
   }
 
   // Listen for ICE candidates and handle them
-  function handleICECandidates() {
-    peerConnection.onicecandidate = (event) => {
+  function collectIceCandidates(id) {
+    const candidatesCollection = collection(
+      db,
+      "sessions",
+      id,
+      "iceCandidates"
+    );
+
+    // ICE candidate collection and setting
+    peerConnection.onicecandidate = async (event) => {
       if (event.candidate) {
-        const json = event.candidate.toJSON();
-        updateDocument(`sessions/${sessionId}/iceCandidates`, json);
+        await addDoc(candidatesCollection, event.candidate.toJSON());
       }
     };
 
-    listenToCollection(`sessions/${sessionId}/iceCandidates`, (snapshot) => {
+    // Listen for remote ICE candidates
+    const q = query(candidatesCollection);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           const candidate = new RTCIceCandidate(change.doc.data());
@@ -81,6 +125,8 @@ export default function useWebRTC() {
         }
       });
     });
+
+    return unsubscribe;
   }
 
   // Clean up on disconnect
@@ -94,7 +140,7 @@ export default function useWebRTC() {
     initLocalStream,
     createRoom,
     joinRoom,
-    handleICECandidates,
+    collectIceCandidates,
     onDisconnect,
   };
 }

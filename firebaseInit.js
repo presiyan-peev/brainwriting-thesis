@@ -8,6 +8,8 @@ import {
   getDocs,
   doc,
   setDoc,
+  onSnapshot,
+  query,
 } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -37,4 +39,15 @@ console.log({ firebaseConfig });
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-export { app, db, collection, updateDoc, getDoc, getDocs, doc, setDoc };
+export {
+  app,
+  db,
+  collection,
+  updateDoc,
+  getDoc,
+  getDocs,
+  doc,
+  setDoc,
+  onSnapshot,
+  query,
+};
