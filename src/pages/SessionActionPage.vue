@@ -17,7 +17,7 @@
       <template v-if="sessionStage === 'not-started'">
         <SessionActionBefore :session="session" />
       </template>
-      <template v-else-if="sessionStage === 'started'">
+      <template v-else-if="sessionStage === 'generating-ideas'">
         <SessionActionIdeaGeneration
           :idea-card="
             session.ideaCards
@@ -27,6 +27,11 @@
           :active-round="activeRound"
           :loading="waitingForNextRound"
           @finished="submitInput"
+        />
+      </template>
+      <template v-else-if="sessionStage === 'discussing'">
+        <SessionActionDiscussion
+          :waiting-for-call-to-start="waitingForDiscussionCallToStart"
         />
       </template>
       <template v-else-if="sessionStage === 'ended'">
@@ -44,6 +49,7 @@ import { useQuasar } from "quasar";
 
 import SessionActionBefore from "src/pages/partials/SessionActionBefore.vue";
 import SessionActionIdeaGeneration from "src/pages/partials/SessionActionIdeaGeneration.vue";
+import SessionActionDiscussion from "src/pages/partials/SessionActionDiscussion.vue";
 import SessionActionClosed from "src/pages/partials/SessionActionClosed.vue";
 import AppInput from "src/components/forms/AppInput.vue";
 
@@ -62,6 +68,7 @@ const activeRound = ref(1);
 const userIndex = ref(-1);
 const nextIdeaFormIndex = ref(-1);
 const waitingForNextRound = ref(false);
+const waitingForDiscussionCallToStart = ref(true);
 
 async function fetchSessionData() {
   session.value = null;
@@ -93,6 +100,11 @@ function checkAccessCode() {
 
 function fetchNextIdeaCard() {
   incrementIdeaFormIndex();
+  if (activeRound.value == 6) {
+    waitingForDiscussionCallToStart.value = true;
+    // TODO MAINA
+    return;
+  }
   setTimeout(() => {
     fetchSessionData();
     activeRound.value++;
@@ -134,12 +146,12 @@ const submitInput = (e) => {
 const round = computed(() => {});
 
 const sessionStage = computed(() => {
-  return "started";
+  return "discussing";
   const now = Date.now();
   if (now < session.value.startingTime) {
     return "not-started";
   } else if (now < session.value.endingTime) {
-    return "started";
+    return "generating-ideas";
   } else {
     return "ended";
   }
