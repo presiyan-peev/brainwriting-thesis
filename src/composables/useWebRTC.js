@@ -24,15 +24,40 @@ export function useWebRTC() {
     ],
     iceCandidatePoolSize: 10,
   };
-  const localStream = ref(null);
+  const localStream = ref(0);
+  const remoteStream = ref(0);
   const peerConnection = new RTCPeerConnection(configuration);
   let roomRef = null;
+  let remoteDescriptionSet = false;
+  let iceCandidateQueue = [];
+
+  peerConnection.ontrack = (event) => {
+    console.log("On track: " + event);
+    const [stream] = event.streams;
+    remoteStream.value = stream; // Assuming remoteStream is a Vue ref
+  };
+
+  peerConnection.onconnectionstatechange = function (event) {
+    console.log(
+      `Connection state changed to ${peerConnection.connectionState}`
+    );
+  };
+  peerConnection.onicegatheringstatechange = function (event) {
+    console.log(
+      `ICE gathering state changed: ${peerConnection.iceGatheringState}`
+    );
+    console.log(event);
+  };
 
   // Initialize the local stream
   async function initLocalStream() {
     localStream.value = await navigator.mediaDevices.getUserMedia({
-      video: true,
+      video: false,
       audio: true,
+    });
+    console.log({
+      localStream: localStream.value,
+      tracks: localStream.value.getTracks(),
     });
     localStream.value
       .getTracks()
@@ -41,13 +66,7 @@ export function useWebRTC() {
 
   // Create a new room within an existing session
   async function createRoom(id) {
-    initLocalStream();
-    peerConnection.onicegatheringstatechange = function (event) {
-      console.log(
-        `ICE gathering state changed: ${peerConnection.iceGatheringState}`
-      );
-      console.log(event);
-    };
+    await initLocalStream();
     // Create an initial document to update.
     roomRef = doc(db, "sessions", id.toString());
 
@@ -55,7 +74,7 @@ export function useWebRTC() {
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
-
+    console.log(offer.sdp);
     // To update age and favorite color:
     await updateDoc(roomRef, {
       offer: {
@@ -71,6 +90,11 @@ export function useWebRTC() {
         console.log("Set remote description: ", data.answer);
         const answer = new RTCSessionDescription(data.answer);
         await peerConnection.setRemoteDescription(answer);
+        remoteDescriptionSet = true;
+        iceCandidateQueue.forEach((candidate) =>
+          peerConnection.addIceCandidate(candidate)
+        );
+        iceCandidateQueue = [];
       }
     });
 
@@ -78,24 +102,26 @@ export function useWebRTC() {
   }
 
   async function joinRoom(id) {
-    initLocalStream();
-    peerConnection.onicegatheringstatechange = function (event) {
-      console.log(
-        `ICE gathering state changed: ${peerConnection.iceGatheringState}`
-      );
-      console.log(event);
-    };
+    await initLocalStream();
+
     roomRef = doc(db, "sessions", id.toString());
     collectIceCandidates(id);
 
     // Listen to changes in the document
     const unsubscribe = onSnapshot(roomRef, async (snapshot) => {
+      console.log("Got updated room:", snapshot.data());
       const data = snapshot.data();
       if (data && data.offer && !peerConnection.currentRemoteDescription) {
+        console.log("Set remote description: ", data.offer);
         const offer = data.offer;
         await peerConnection.setRemoteDescription(
           new RTCSessionDescription(offer)
         );
+        remoteDescriptionSet = true;
+        iceCandidateQueue.forEach((candidate) =>
+          peerConnection.addIceCandidate(candidate)
+        );
+        iceCandidateQueue = [];
 
         // Create an answer now that you've received an offer
         const answer = await peerConnection.createAnswer();
@@ -115,6 +141,7 @@ export function useWebRTC() {
 
   // Listen for ICE candidates and handle them
   function collectIceCandidates(id, isCaller = false) {
+    console.log({ collectIceCandidates: id });
     const candidatesCollection = collection(
       db,
       "sessions",
@@ -140,13 +167,26 @@ export function useWebRTC() {
         console.log({ change });
         if (change.type === "added") {
           const candidate = new RTCIceCandidate(change.doc.data());
-          peerConnection.addIceCandidate(candidate);
+          if (remoteDescriptionSet) {
+            peerConnection.addIceCandidate(candidate);
+          } else {
+            iceCandidateQueue.push(candidate);
+          }
         }
       });
       console.log("after snapshot");
     });
 
     return unsubscribe;
+  }
+
+  function addIceCandidates() {
+    const candidatesCollection = collection(
+      db,
+      "sessions",
+      id,
+      "iceCandidates"
+    );
   }
 
   // Clean up on disconnect
@@ -157,6 +197,7 @@ export function useWebRTC() {
 
   return {
     localStream,
+    remoteStream,
     initLocalStream,
     createRoom,
     joinRoom,
