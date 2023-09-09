@@ -33,7 +33,7 @@
         <SessionActionDiscussion
           :waiting-for-call-to-start="waitingForDiscussionCallToStart"
           :remoteStream="remoteStream"
-          @join-call="joinRoom(sessionUrl)"
+          @join-call="tryJoinChannel"
         />
       </template>
       <template v-else-if="sessionStage === 'ended'">
@@ -48,7 +48,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useFirestore } from "src/composables/useFirestore";
 import { useQuasar } from "quasar";
-import { useWebRTC } from "src/composables/useWebRTC";
+import { useAgora } from "src/composables/useAgora";
 
 import SessionActionBefore from "src/pages/partials/SessionActionBefore.vue";
 import SessionActionIdeaGeneration from "src/pages/partials/SessionActionIdeaGeneration.vue";
@@ -59,7 +59,10 @@ import AppInput from "src/components/forms/AppInput.vue";
 const $q = useQuasar();
 const route = useRoute();
 const { getSession, updateSessionIdeaCard } = useFirestore();
-const { remoteStream, joinRoom } = useWebRTC();
+const { initOptions, tryJoinChannel, startBasicCall, leaveCall } = useAgora();
+
+// TODO - move to be executed when discussion starts
+startBasicCall();
 
 const sessionUrl = route.params.sessionUrl;
 
@@ -85,14 +88,15 @@ function checkAccessCode() {
     (x) => x.password === accessCode.value
   );
   if (userIndex.value > -1) {
-    isAuthenticated.value = true;
     userFullName.value = session.value.contributors[userIndex.value].name;
+    initOptions({ uid: userFullName.value });
     nextIdeaFormIndex.value = userIndex.value;
     $q.notify({
       message: "You are now authenticated",
       color: "info",
       icon: "check",
     });
+    isAuthenticated.value = true;
   } else {
     $q.notify({
       message: "The access code is incorrect",

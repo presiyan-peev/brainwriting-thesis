@@ -20,12 +20,12 @@
 <script setup>
 import BaseAudio from "src/components/BaseAudio.vue";
 import { useFirestore } from "src/composables/useFirestore";
-import { useWebRTC } from "src/composables/useWebRTC";
+import { useAgora } from "src/composables/useAgora";
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 
 const { getSession, updateSessionIdeaCard } = useFirestore();
-const { remoteStream, createRoom } = useWebRTC();
+const { initOptions } = useAgora();
 const route = useRoute();
 const session = ref(null);
 const sessionUrl = route.params.sessionUrl;
