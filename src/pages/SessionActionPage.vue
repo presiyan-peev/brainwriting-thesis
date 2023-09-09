@@ -32,6 +32,7 @@
       <template v-else-if="sessionStage === 'discussing'">
         <SessionActionDiscussion
           :waiting-for-call-to-start="waitingForDiscussionCallToStart"
+          :remoteStream="remoteStream"
           @join-call="joinRoom(sessionUrl)"
         />
       </template>
@@ -58,7 +59,7 @@ import AppInput from "src/components/forms/AppInput.vue";
 const $q = useQuasar();
 const route = useRoute();
 const { getSession, updateSessionIdeaCard } = useFirestore();
-const { joinRoom } = useWebRTC();
+const { remoteStream, joinRoom } = useWebRTC();
 
 const sessionUrl = route.params.sessionUrl;
 

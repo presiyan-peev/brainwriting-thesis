@@ -11,16 +11,21 @@
       @click="createRoom(sessionUrl)"
     />
   </div>
+  <BaseAudio
+    v-if="remoteStream && remoteStream != null"
+    :remoteStream="remoteStream"
+  />
 </template>
 
 <script setup>
+import BaseAudio from "src/components/BaseAudio.vue";
 import { useFirestore } from "src/composables/useFirestore";
 import { useWebRTC } from "src/composables/useWebRTC";
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 
 const { getSession, updateSessionIdeaCard } = useFirestore();
-const { createRoom } = useWebRTC();
+const { remoteStream, createRoom } = useWebRTC();
 const route = useRoute();
 const session = ref(null);
 const sessionUrl = route.params.sessionUrl;

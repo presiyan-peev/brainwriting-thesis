@@ -7,13 +7,19 @@
     <div v-else>Waiting for call to start... Please be patient</div>
   </div>
   <div v-else>it's the call mate</div>
+  <BaseAudio
+    v-if="remoteStream && remoteStream != null"
+    :remoteStream="remoteStream"
+  />
 </template>
 
 <script setup>
+import BaseAudio from "src/components/BaseAudio.vue";
 import { ref } from "vue";
 
-const { waitingForCallToStart } = defineProps({
+const { waitingForCallToStart, remoteStream } = defineProps({
   waitingForCallToStart: Boolean,
+  remoteStream: MediaStream,
 });
 
 const emit = defineEmits(["joinCall"]);
