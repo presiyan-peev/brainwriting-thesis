@@ -15,7 +15,7 @@
 
 <script setup>
 import { useFirestore } from "src/composables/useFirestore";
-import useWebRTC from "src/composables/useWebRTC";
+import { useWebRTC } from "src/composables/useWebRTC";
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 

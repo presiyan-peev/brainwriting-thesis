@@ -32,6 +32,7 @@
       <template v-else-if="sessionStage === 'discussing'">
         <SessionActionDiscussion
           :waiting-for-call-to-start="waitingForDiscussionCallToStart"
+          @join-call="joinRoom(sessionUrl)"
         />
       </template>
       <template v-else-if="sessionStage === 'ended'">
@@ -46,6 +47,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useFirestore } from "src/composables/useFirestore";
 import { useQuasar } from "quasar";
+import { useWebRTC } from "src/composables/useWebRTC";
 
 import SessionActionBefore from "src/pages/partials/SessionActionBefore.vue";
 import SessionActionIdeaGeneration from "src/pages/partials/SessionActionIdeaGeneration.vue";
@@ -56,6 +58,7 @@ import AppInput from "src/components/forms/AppInput.vue";
 const $q = useQuasar();
 const route = useRoute();
 const { getSession, updateSessionIdeaCard } = useFirestore();
+const { joinRoom } = useWebRTC();
 
 const sessionUrl = route.params.sessionUrl;
 

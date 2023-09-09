@@ -3,6 +3,7 @@ import {
   db,
   collection,
   updateDoc,
+  addDoc,
   getDoc,
   getDocs,
   doc,
@@ -11,7 +12,7 @@ import {
   query,
 } from "../../firebaseInit";
 
-export default function useWebRTC() {
+export function useWebRTC() {
   const configuration = {
     iceServers: [
       {
@@ -40,10 +41,17 @@ export default function useWebRTC() {
 
   // Create a new room within an existing session
   async function createRoom(id) {
+    initLocalStream();
+    peerConnection.onicegatheringstatechange = function (event) {
+      console.log(
+        `ICE gathering state changed: ${peerConnection.iceGatheringState}`
+      );
+      console.log(event);
+    };
     // Create an initial document to update.
     roomRef = doc(db, "sessions", id.toString());
 
-    collectIceCandidates(id);
+    collectIceCandidates(id, true);
 
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
@@ -70,6 +78,13 @@ export default function useWebRTC() {
   }
 
   async function joinRoom(id) {
+    initLocalStream();
+    peerConnection.onicegatheringstatechange = function (event) {
+      console.log(
+        `ICE gathering state changed: ${peerConnection.iceGatheringState}`
+      );
+      console.log(event);
+    };
     roomRef = doc(db, "sessions", id.toString());
     collectIceCandidates(id);
 
@@ -87,7 +102,7 @@ export default function useWebRTC() {
         await peerConnection.setLocalDescription(answer);
 
         // Update Firestore with your answer
-        await updateDoc(`sessions/${id}`, {
+        await updateDoc(roomRef, {
           answer: {
             type: answer.type,
             sdp: answer.sdp,
@@ -95,12 +110,11 @@ export default function useWebRTC() {
         });
       }
     });
-
     return unsubscribe;
   }
 
   // Listen for ICE candidates and handle them
-  function collectIceCandidates(id) {
+  function collectIceCandidates(id, isCaller = false) {
     const candidatesCollection = collection(
       db,
       "sessions",
@@ -110,20 +124,26 @@ export default function useWebRTC() {
 
     // ICE candidate collection and setting
     peerConnection.onicecandidate = async (event) => {
+      console.log("ICE Candidate event:", event);
       if (event.candidate) {
+        console.log(event);
         await addDoc(candidatesCollection, event.candidate.toJSON());
+        console.log("event");
       }
     };
 
     // Listen for remote ICE candidates
     const q = query(candidatesCollection);
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log({ snapshot });
       snapshot.docChanges().forEach((change) => {
+        console.log({ change });
         if (change.type === "added") {
           const candidate = new RTCIceCandidate(change.doc.data());
           peerConnection.addIceCandidate(candidate);
         }
       });
+      console.log("after snapshot");
     });
 
     return unsubscribe;

@@ -6,7 +6,7 @@
     </div>
     <div v-else>Waiting for call to start... Please be patient</div>
   </div>
-  <div v-else></div>
+  <div v-else>it's the call mate</div>
 </template>
 
 <script setup>
