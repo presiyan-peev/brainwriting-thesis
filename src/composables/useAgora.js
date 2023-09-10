@@ -1,4 +1,5 @@
 import AgoraRTC from "agora-rtc-sdk-ng";
+import { ref, computed } from "vue";
 
 const { VITE_AGORA_APP_ID } = import.meta.env;
 
@@ -26,6 +27,22 @@ export function useAgora() {
   };
 
   let agoraEngine = null;
+
+  // Audio Controls
+  const isMuteAudio = ref(false);
+  const localAudioVolume = computed(() => {
+    if (!channelParameters.localAudioTrack.getVolume) {
+      return 0;
+    }
+    return channelParameters.localAudioTrack.getVolume();
+  });
+
+  const remoteAudioVolume = computed(() => {
+    if (!channelParameters.remoteAudioTrack.getVolume) {
+      return 0;
+    }
+    return channelParameters.remoteAudioTrack.getVolume();
+  });
 
   function initOptions({ uid }) {
     options.uid = uid;
@@ -86,16 +103,48 @@ export function useAgora() {
     // window.location.reload();
   }
 
+  const toggleMute = () => {
+    if (isMuteAudio.value == false) {
+      console.log("Mute the local audio");
+      // Mute the local audio.
+      channelParameters.localAudioTrack.setEnabled(false);
+      isMuteAudio.value = true;
+    } else {
+      console.log("Unmute the local audio");
+      // Unmute the local audio.
+      channelParameters.localAudioTrack.setEnabled(true);
+      isMuteAudio.value = false;
+    }
+  };
+
+  const setLocalAudioVolume = (volume) => {
+    console.log("Volume of local audio :" + volume);
+    // Set the local audio volume.
+    channelParameters.localAudioTrack.setVolume(parseInt(volume));
+  };
+
+  const setRemoteAudioVolume = (volume) => {
+    console.log("Volume of remote  audio :" + volume);
+    // Set the remote audio volume.
+    channelParameters.remoteAudioTrack.setVolume(parseInt(volume));
+  };
+
   function showMessage(text) {
-    console.log(text);
+    console.log({ useAgora: text });
   }
 
   startBasicCall();
 
   return {
+    isMuteAudio,
+    localAudioVolume,
+    remoteAudioVolume,
     startBasicCall,
     initOptions,
     tryJoinChannel,
     leaveCall,
+    toggleMute,
+    setLocalAudioVolume,
+    setRemoteAudioVolume,
   };
 }
