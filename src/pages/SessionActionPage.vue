@@ -31,8 +31,7 @@
       </template>
       <template v-else-if="sessionStage === 'discussing'">
         <SessionActionDiscussion
-          :waiting-for-call-to-start="waitingForDiscussionCallToStart"
-          :remoteStream="remoteStream"
+          :waiting-for-call-to-start="!hasJoinedCall"
           @join-call="tryJoinChannel"
         />
       </template>
@@ -44,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, provide } from "vue";
 import { useRoute } from "vue-router";
 import { useFirestore } from "src/composables/useFirestore";
 import { useQuasar } from "quasar";
@@ -59,10 +58,31 @@ import AppInput from "src/components/forms/AppInput.vue";
 const $q = useQuasar();
 const route = useRoute();
 const { getSession, updateSessionIdeaCard } = useFirestore();
-const { initOptions, tryJoinChannel, startBasicCall, leaveCall } = useAgora();
+const {
+  hasJoinedCall,
+  initOptions,
+  tryJoinChannel,
+  startBasicCall,
+  leaveCall,
+  channelParameters,
+
+  isMuteAudio,
+  localAudioVolume,
+  remoteAudioVolume,
+  toggleMute,
+  setLocalAudioVolume,
+  setRemoteAudioVolume,
+} = useAgora();
 
 // TODO - move to be executed when discussion starts
 startBasicCall();
+
+provide("isMuteAudio", isMuteAudio);
+provide("localAudioVolume", localAudioVolume);
+provide("remoteAudioVolume", remoteAudioVolume);
+provide("toggleMute", toggleMute);
+provide("setLocalAudioVolume", setLocalAudioVolume);
+provide("setRemoteAudioVolume", setRemoteAudioVolume);
 
 const sessionUrl = route.params.sessionUrl;
 

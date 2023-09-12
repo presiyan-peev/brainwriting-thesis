@@ -8,11 +8,11 @@ export function useAgora() {
     // Pass your App ID here.
     appId: VITE_AGORA_APP_ID,
     // Set the channel name.
-    channel: "brainwriting",
+    channel: "Brainwriting",
     // Pass your temp token here.
     // "must_be_initialized_by_auth_calling_API",
     token:
-      "007eJxTYHDuiBUNrN2gtGcRw5+KJW/yb8z5Ni2Bt6HWYv+SXdErHxYpMCRamCZaJJobp5qYmZkYp1okmpkbGRoYmhqamRiZGJkZnb/0J6UhkJFhgtlTZkYGCATxeRiSihIz88qLMksy89IZGACq9iQV",
+      "007eJxTYDizYqP6zOQ/D8UuptpU9n0x/eOpXbz2RJ/LxB3Ke3hWcrQrMCRamCZaJJobp5qYmZkYp1okmpkbGRoYmhqamRiZGJkZlZUzpDYEMjJwvTFhZWSAQBCfh8GpKDEzr7wosyQzL52BAQBiICF2",
     // Set the user ID.
     uid: "must_be__a_string_initialized_by_auth",
   };
@@ -27,18 +27,25 @@ export function useAgora() {
   };
 
   let agoraEngine = null;
+  const hasJoinedCall = ref(false);
 
   // Audio Controls
   const isMuteAudio = ref(false);
   const localAudioVolume = computed(() => {
-    if (!channelParameters.localAudioTrack.getVolume) {
+    if (
+      !channelParameters.localAudioTrack ||
+      channelParameters.localAudioTrack.getVolume == undefined
+    ) {
       return 0;
     }
     return channelParameters.localAudioTrack.getVolume();
   });
 
   const remoteAudioVolume = computed(() => {
-    if (!channelParameters.remoteAudioTrack.getVolume) {
+    if (
+      !channelParameters.remoteAudioTrack ||
+      !channelParameters.remoteAudioTrack.getVolume
+    ) {
       return 0;
     }
     return channelParameters.remoteAudioTrack.getVolume();
@@ -91,6 +98,7 @@ export function useAgora() {
     // Publish the local audio track in the channel.
     await agoraEngine.publish(channelParameters.localAudioTrack);
     console.log("Publish success!");
+    hasJoinedCall.value = true;
   }
 
   async function leaveCall() {
@@ -101,6 +109,7 @@ export function useAgora() {
     console.log("You left the channel");
     // Refresh the page for reuse
     // window.location.reload();
+    hasJoinedCall.value = false;
   }
 
   const toggleMute = () => {
@@ -136,6 +145,8 @@ export function useAgora() {
   startBasicCall();
 
   return {
+    channelParameters,
+    hasJoinedCall,
     isMuteAudio,
     localAudioVolume,
     remoteAudioVolume,
