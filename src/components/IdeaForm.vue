@@ -37,7 +37,7 @@ export default {
     },
     activeRound: {
       type: Number,
-      default: 1,
+      default: -1,
     },
   },
   data() {

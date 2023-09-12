@@ -32,6 +32,7 @@
       <template v-else-if="sessionStage === 'discussing'">
         <SessionActionDiscussion
           :waiting-for-call-to-start="!hasJoinedCall"
+          :user-index="userIndex"
           @join-call="tryJoinChannel"
         />
       </template>
@@ -170,8 +171,6 @@ const submitInput = (e) => {
     });
   }
 };
-
-const round = computed(() => {});
 
 const sessionStage = computed(() => {
   return "discussing";
