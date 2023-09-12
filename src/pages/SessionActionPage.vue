@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, provide } from "vue";
+import { ref, onMounted, provide } from "vue";
 import { useRoute } from "vue-router";
 import { useFirestore } from "src/composables/useFirestore";
 import { useQuasar } from "quasar";
@@ -138,10 +138,10 @@ function checkAccessCode() {
  * @returns {String}
  * possible values: not-started, generating-ideas, discussing, ended
  */
-const sessionStage = ref("not-started");
+const sessionStage = ref("ended");
 
 const initStage = () => {
-  sessionStage.value = session.value.stage || "not-started";
+  // sessionStage.value = session.value.stage || "not-started";
 };
 
 /**
