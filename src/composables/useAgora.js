@@ -36,7 +36,7 @@ export function useAgora() {
       !channelParameters.localAudioTrack ||
       channelParameters.localAudioTrack.getVolume == undefined
     ) {
-      return 0;
+      return 100;
     }
     return channelParameters.localAudioTrack.getVolume();
   });
@@ -46,7 +46,7 @@ export function useAgora() {
       !channelParameters.remoteAudioTrack ||
       !channelParameters.remoteAudioTrack.getVolume
     ) {
-      return 0;
+      return 100;
     }
     return channelParameters.remoteAudioTrack.getVolume();
   });

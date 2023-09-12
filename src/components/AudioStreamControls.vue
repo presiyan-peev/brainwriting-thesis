@@ -1,23 +1,25 @@
 <template>
-  <div class="audio-stream-controls">
+  <q-field outlined class="audio-stream-controls q-pa-sm">
     <q-btn :label="isMuteAudio ? 'Unmute' : 'Mute'" @click="toggleMute" />
-    <AppSlider
+    <!-- <AppSlider
       :model-value="localAudioVolume"
-      label="Local Audio Level"
       :min="0"
       :max="100"
       :step="5"
+      text="Mic Volume"
       @update:model-value="setLocalAudioVolume"
-    />
+    /> -->
+    <q-separator vertical class="q-my-xs" />
     <AppSlider
+      class="q-my-auto q-ml-sm"
       :model-value="remoteAudioVolume"
-      label="Remote Audio Level"
       :min="0"
       :max="100"
       :step="5"
       @update:model-value="setRemoteAudioVolume"
+      style="width: 150px"
     />
-  </div>
+  </q-field>
 </template>
 
 <script setup>
@@ -30,3 +32,8 @@ const toggleMute = inject("toggleMute");
 const setLocalAudioVolume = inject("setLocalAudioVolume");
 const setRemoteAudioVolume = inject("setRemoteAudioVolume");
 </script>
+
+<style scoped lang="sass">
+.audio-stream-controlss
+  border: 1px solid #3333DD77
+</style>

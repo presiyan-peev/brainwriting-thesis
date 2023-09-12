@@ -1,12 +1,12 @@
 <template>
   <div class="flex">
+    <span v-if="text">{{ text }}</span>
     <q-slider
       v-bind="$attrs"
       :model-value="modelValue"
-      dense
+      :label="true"
       @update:model-value="updateModelValue"
     />
-    <span>{{ modelValue }}</span>
   </div>
 </template>
 
@@ -15,9 +15,9 @@ import { ref } from "vue";
 
 const {
   modelValue: propValue,
-  placeholder,
+  text,
   type,
-} = defineProps(["modelValue", "placeholder", "type"]);
+} = defineProps(["modelValue", "text", "type"]);
 const modelValue = ref(propValue);
 const emit = defineEmits(["update:model-value"]);
 

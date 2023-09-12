@@ -7,8 +7,7 @@
     <div v-else>Waiting for call to start... Please be patient</div>
   </div>
   <div v-else>
-    it's the call mate
-    <AudioStreamControls />
+    <AudioStreamControls class="audio-controls" />
   </div>
 </template>
 
@@ -29,3 +28,8 @@ function joinCall() {
   emit("joinCall");
 }
 </script>
+
+<style scoped lang="sass">
+.audio-controls
+  width: 300px
+</style>
