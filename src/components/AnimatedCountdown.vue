@@ -33,7 +33,7 @@ export default {
       if (distance <= 0) {
         clearInterval(this.interval);
         this.timeLeft = "Event has started!";
-        // this.$emit("finished");
+        this.$emit("finished");
         return;
       }
 

@@ -2,6 +2,7 @@
   <AnimatedCountdown
     label="Time until we start"
     :timestamp="session.startingTime"
+    @finished="emit('start')"
   />
   <p>Starting time: {{ userFriendlyStartingTime }}</p>
   <h6>Please, be on time!</h6>
@@ -17,6 +18,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+const emit = defineEmits(["start"]);
 
 const userFriendlyStartingTime = computed(() => {
   const date = new Date(props.session.startingTime);

@@ -15,7 +15,7 @@
       <h4>Hello, {{ userFullName }}</h4>
       <h2>{{ session.topic }}</h2>
       <template v-if="sessionStage === 'not-started'">
-        <SessionActionBefore :session="session" />
+        <SessionActionBefore :session="session" @start="startSession" />
       </template>
       <template v-else-if="sessionStage === 'generating-ideas'">
         <SessionActionIdeaGeneration
@@ -33,6 +33,7 @@
         <SessionActionDiscussion
           :waiting-for-call-to-start="!hasJoinedCall"
           :user-index="userIndex"
+          :ida-cards="session.ideaCards"
           @join-call="tryJoinChannel"
         />
       </template>
@@ -104,6 +105,10 @@ async function fetchSessionData() {
   loading.value = false;
 }
 
+/**
+ * AUTHENTICATION LOGIC
+ * Checks if the access code is correct and sets the user index
+ */
 function checkAccessCode() {
   userIndex.value = session.value.contributors.findIndex(
     (x) => x.password === accessCode.value
@@ -127,11 +132,32 @@ function checkAccessCode() {
   }
 }
 
-function fetchNextIdeaCard() {
+/**
+ * JSDoc
+ * @param {String} stage
+ * @returns {String}
+ * possible values: not-started, generating-ideas, discussing, ended
+ */
+const sessionStage = ref("not-started");
+
+const initStage = () => {
+  sessionStage.value = session.value.stage || "not-started";
+};
+
+/**
+ * IDEA GENERATION LOGIC
+ */
+
+const startSession = () => {
+  sessionStage.value = "generating-ideas";
+};
+
+async function fetchNextIdeaCard() {
   incrementIdeaFormIndex();
   if (activeRound.value == 6) {
     waitingForDiscussionCallToStart.value = true;
-    // TODO MAINA
+    await fetchSessionData();
+    sessionStage.value = "discussing";
     return;
   }
   setTimeout(() => {
@@ -172,23 +198,12 @@ const submitInput = (e) => {
   }
 };
 
-const sessionStage = computed(() => {
-  return "discussing";
-  const now = Date.now();
-  if (now < session.value.startingTime) {
-    return "not-started";
-  } else if (now < session.value.endingTime) {
-    return "generating-ideas";
-  } else {
-    return "ended";
-  }
+onMounted(async () => {
+  await fetchSessionData();
+  initStage;
 });
 
-onMounted(() => {
-  fetchSessionData();
-});
-
-const emptyRow = {
+const mockEmptyRow = {
   ideas: [
     {
       content: "",
@@ -218,11 +233,11 @@ const mockIdeaCard = {
         },
       ],
     },
-    { ...emptyRow },
-    { ...emptyRow },
-    { ...emptyRow },
-    { ...emptyRow },
-    { ...emptyRow },
+    { ...mockEmptyRow },
+    { ...mockEmptyRow },
+    { ...mockEmptyRow },
+    { ...mockEmptyRow },
+    { ...mockEmptyRow },
   ],
 };
 </script>
