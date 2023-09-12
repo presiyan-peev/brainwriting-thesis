@@ -38,7 +38,7 @@
         />
       </template>
       <template v-else-if="sessionStage === 'ended'">
-        <SessionActionClosed :session="session" />
+        <SessionActionClosed v-if="session.ideaCards" :session="session" />
       </template>
     </div>
   </div>

@@ -17,8 +17,9 @@
           <td v-for="(idea, ideaIndex) in round.ideas" :key="ideaIndex">
             <q-input
               label="Idea"
-              :disable="activeRound !== index + 1"
               :model-value="idea.content"
+              type="textarea"
+              rows="3"
               @update:model-value="updateIdea(index, ideaIndex, $event)"
             />
           </td>

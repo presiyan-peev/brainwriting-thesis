@@ -4,7 +4,7 @@
     discussion notes
   </div>
   <q-pagination v-model="current" :max="6" />
-  <IdeaForm :idea-card="session.ideaCards[current - 1]" />
+  <IdeaForm :idea-card="session.ideaCards[current]" />
 </template>
 
 <script setup>
